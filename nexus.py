@@ -10,7 +10,7 @@ logo = random.choice(logos)
 exitTry = False
 
 
-##########                                                                                                                              ##########
+##########                                                                                                                             ##########
 #################################################################################################################################################
 ##################################################\---   OPTION FUNCTIONS   ---/#################################################################
 #################################################################################################################################################
@@ -29,13 +29,33 @@ def StopMonitoringMode():
     call([ "echo", f"{color.green}WIFI ENABLED" ])
 
 def StartDeauthAttack():
+    #WIFI RESTART
+    call([ "echo", f"{color.green}Reastarting NetworkManager..." ])
+    call([ "sudo", "airmon-ng", "stop", "wlan0" ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    call([ "sudo", "systemctl", "start", "NetworkManager" ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    call([ "sudo", "ifconfig", "wlan0", "down" ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    call([ "sudo", "iwconfig", "wlan0", "mode", "managed" ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    call([ "sudo", "ifconfig", "wlan0", "up" ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    call([ "sudo", "systemctl", "start", "NetworkManager" ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    call([ "sudo", "systemctl", "restart", "NetworkManager" ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    #WAITING FOR WIFI TO COME BACK
+    call([ "echo", f"Waiting for WiFi to come back..." ])
+    while True:
+        isEnabled = subprocess.run([ "nmcli", "dev", "wifi" ], capture_output=True, text=True)
+        if not (len(isEnabled.stdout.split('\n')) < 3):
+            break
+    
+    #Creating WIFI Table
     call([ "echo", deauth_logo ])
     result = subprocess.run([ "nmcli", "dev", "wifi" ], capture_output=True, text=True)
     result = result.stdout
     result = result.replace('*', ' ')
+
     if(len(result.split('\n')) < 3):
         print(f"{color.red}YOU NEED TO DISABLE MONITORING MODE BEFORE RUNNING THIS OPTION. {color.blue}OPTION 2{color.white}")
         return 0
+    
+    #FORMATING TABLE
     count = 0
     for line in result.split('\n'):
         if(count == 0):
@@ -51,12 +71,13 @@ def StartDeauthAttack():
         count+=1
     result = result.replace('        ', '')
 
+    #EXTRACTING MAC ADDRESSES
     MACs = []
-
     for line in result.split('\n'):
         MACs.append(line.split(' ')[0])
-
     MACs.pop(0)
+
+    #GETTING ID AND VERIFYING IT
     while True:
         try:
             ID = input(f"Enter WiFi {color.yellow}ID{color.white}: ")
@@ -75,6 +96,7 @@ def StartDeauthAttack():
         except:
             call([ "echo", f"\n\n{color.red}Invalid ID{color.white}. If you want to exit type{color.red} exit{color.white}.\n" ])
 
+    #GETTING CHANNEL AND VERIFYING IT
     while True:
         try:
             CH = input(f"Enter WiFi {color.yellow}CHAN{color.white}: ")
@@ -93,6 +115,7 @@ def StartDeauthAttack():
         except:
             call([ "echo", f"\n\n{color.red}Invalid CHANNEL{color.white}. If you want to exit type{color.red} exit{color.white}.\n" ])
 
+    #RUNNING CUSTOM COMMANDS
     call([ "sudo", "airmon-ng", "check", "kill"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     call([ "sudo", "service", "NetworkManager", "restart" ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     call([ "sudo", "airmon-ng", "start", "wlan0" ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -208,6 +231,9 @@ while True:
     
     elif(command == 'exit'):
         break
+
+    elif(command == 'update'):
+        print(f"{color.blue}\nYou are up to date!{color.white}")
 
     else:
         print(f"{color.red}!{color.white} Invalid Option {color.red}!{color.white}")

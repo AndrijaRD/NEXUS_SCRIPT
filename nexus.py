@@ -673,4 +673,3 @@ while True:
             StartUpScreen()
         else: 
             print(f"{R}!{W} INVALID OPTION {R}!{W}\n")
-

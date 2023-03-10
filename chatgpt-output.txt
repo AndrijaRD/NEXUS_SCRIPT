@@ -1,4 +1,0 @@
-
-[+] Input: hi what is your name
-
-[+] Output:
